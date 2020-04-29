@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>進貨單</title>
+    <base target="_top">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+    <div class="form-group col-xs-4 col-md-4">
+      <label for="storage" id="storageLabel">入庫倉</label>
+      <select class="form-control" id="storage" storageID="">
+        <option></option>
+      </select>
+    </div>
+    <div class="form-group col-xs-4 col-md-4">
+      <label for="datetimePicker" id="datetimePickerLabel">入庫日期</label>
+      <input type="datetime-local" class="form-control" id="datetimePicker">
+    </div>
+    <div class="form-group col-xs-4 col-md-4">
+      <label for="number" id="numberLabel">進貨單號碼</label>
+      <input type="text" class="form-control" id="number">
+      <small id="numberhelp" class="form-text text-muted">進貨單號碼說明</small>
+    </div>
+    
+    <br><br>
+    
+    <div class="form-group col-xs-4 col-md-4">
+      <label for="event" id="eventLabel">事件</label>
+      <select class="form-control" id="event" eventID="">
+        <option></option>
+      </select>
+    </div>
+    <div class="form-group col-xs-8 col-md-8">
+      <label for="note" id="noteLabel">備註</label>
+      <input type="text" class="form-control" id="note">
+    </div>
+    
+    <br><br>
+
+    <div class="form-group col-xs-4 col-md-4">
+      <label for="commodity" id="commodityLabel">入庫商品</label>
+      <select class="form-control" id="commodity">
+        <option></option>
+      </select>
+    </div>
+    
+    <div class="form-group col-xs-4 col-md-4">
+      <label for="sku" id="skuLabel">SKU</label>
+      <input type="text" class="form-control" id="sku">
+      <small id="skuhelp" class="form-text text-muted">SKU說明</small>
+    </div>
+    
+    <div class="form-group col-xs-4 col-md-4">
+      <label for="storageNum" id="storageNumLabel">入庫數量</label>
+      <input type="text" class="form-control" id="storageNum">
+    </div>
+    
+    
+    
+    <div class="form-group col-xs-3 col-md-3">
+      <button type="button" class="btn btn-primary" id="submit" trigger="false">送出</button>
+      <small id="submithelp" class="form-text text-muted">送出說明</small>
+    </div>
+    </div>
+  </body>
+  
+  <!-- Bootstrap core javascript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script>
+    $(function(){
+    
+      //Set current time as default time
+      document.getElementById("datetimePicker").value = new Date(new Date().getTime() + 28800000).toISOString().substring(0, 19); // Offset 28800000 = 60 * 60 * 8 * 1000 milisecond such that UTC+0 timezone convert to GMT+8 timezone
+      
+      //Preload event list
+      function getEventListSuccess(response){
+        for(var index in response){
+          var text = response[index];
+          if (text != ""){
+            var option = new Option(text, index);
+            document.getElementById('event').options.add(option);
+          }
+        }
+      }
+      
+      google.script.run.withSuccessHandler(getEventListSuccess).getImportEventList();
+      
+      //Preload commodity list
+      function getCommodityListSuccess(response){
+        
+        for(var index in response){
+          var text = response[index];
+          if (text != ""){
+            var option = new Option(text, index);
+            document.getElementById('commodity').options.add(option);
+          }
+        }
+      }
+    
+      google.script.run.withSuccessHandler(getCommodityListSuccess).getCommodityList();
+      
+      //Preload storage list
+      function getStorageListSuccess(response){
+        
+        for(var index in response){
+          var text = response[index];
+          if (text != ""){
+            var option = new Option(text, index);
+            document.getElementById('storage').options.add(option);
+          }
+        }
+      }
+    
+      google.script.run.withSuccessHandler(getStorageListSuccess).getStorageList();
+      
+      //Load SKU automatically
+      let $commodity = $("#commodity");
+      $commodity.on("change", function(e){
+      
+        function getSkuSuccess(response){
+
+          $("#sku").val(response);
+        }
+        
+        google.script.run.withSuccessHandler(getSkuSuccess).getSKUByCommodity($(this).find("option:selected").text());
+      });
+      
+      //Load event id and save
+      let $event = $("#event");
+      $event.on("change", function(e){
+      
+        function getEventIDSuccess(response){
+          $event.attr("eventID", response);
+        }
+        
+        google.script.run.withSuccessHandler(getEventIDSuccess).getImportEventIDByEvent($(this).find("option:selected").text());
+      });
+      
+      //Load storage id and save
+      let $storage = $("#storage");
+      $storage.on("change", function(e){
+      
+        function getStorageIDSuccess(response){
+          $storage.attr("storageID", response);
+        }
+        
+        google.script.run.withSuccessHandler(getStorageIDSuccess).getStorageIDByStorage($(this).find("option:selected").text());
+      });
+    
+      //Submit Post Request
+      let $submit = $("#submit");
+      $submit.on("click", function(e){
+      
+        var skuVal = $("#sku").val();
+        var noteVal = $("#note").val();
+        var numberVal = $("#number").val();
+        var timeVal = $("#datetimePicker").val();
+        var storageNumVal = $("#storageNum").val();
+        var eventIDVal = $event.attr("eventID");
+        var storageIDVal = $storage.attr("storageID");
+        var commodityVal = $("#commodity").find("option:selected").text();
+        
+        //Check before submit
+        if (numberVal == ""){
+          window.alert("請輸入" + $("#numberLabel").html());
+          return;
+        }
+        if (storageNumVal == ""){
+          window.alert("請輸入" + $("#storageNumLabel").html());
+          return;
+        }
+        if (eventIDVal == ""){
+          window.alert("請選擇" + $("#eventLabel").html());
+          return;
+        }
+        if (storageIDVal == ""){
+          window.alert("請選擇" + $("#storageLabel").html());
+          return;
+        }
+        if (commodityVal == ""){
+          window.alert("請選擇" + $("#commodityLabel").html());
+          return;
+        }
+        
+        //Check submit button state
+        if ($("#submit").attr("trigger") == "true"){
+          return;
+        }
+        
+        //Set submit button to triggered state to prevent double triggered
+        $("#submit").attr("trigger", "true");
+        
+        function postRequestSuccess(response){
+        
+          if (response == "true")
+          {
+            window.alert("寫入成功");
+            
+            //Clear number input
+            $("#number").val("");
+            //Set submit button to default state
+            $("#submit").attr("trigger", "false");
+          }
+        }
+        
+        google.script.run.withSuccessHandler(postRequestSuccess).sendImportPostRequest(
+          timeVal,
+          numberVal, 
+          commodityVal, 
+          skuVal, 
+          storageNumVal, 
+          eventIDVal, 
+          storageIDVal, 
+          noteVal
+        );
+        
+      });
+    
+    });
+  </script>
+    
+</html>

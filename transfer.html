@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>調貨單</title>
+    <base target="_top">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-group col-xs-4 col-md-4">
+        <label for="storageEx" id="storageExLabel">出庫倉</label>
+        <select class="form-control" id="storageEx" storageID="">
+          <option></option>
+        </select>
+      </div>
+      <div class="form-group col-xs-4 col-md-4">
+        <label for="datetimePicker" id="datetimePickerLabel">出入庫日期</label>
+        <input type="datetime-local" class="form-control" id="datetimePicker">
+      </div>
+      <div class="form-group col-xs-4 col-md-4">
+        <label for="number" id="numberLabel">調貨單號碼</label>
+        <input type="text" class="form-control" id="number">
+        <small id="numberhelp" class="form-text text-muted">調貨單號碼說明</small>
+      </div>
+    
+      <br><br>
+    
+      <div class="form-group col-xs-4 col-md-4">
+        <label for="event" id="eventLabel">事件</label>
+        <select class="form-control" id="event" eventID="">
+          <option></option>
+        </select>
+      </div>
+      <div class="form-group col-xs-8 col-md-8">
+        <label for="note" id="noteLabel">備註</label>
+        <input type="text" class="form-control" id="note">
+      </div>
+    
+      <br><br>
+
+      <div class="form-group col-xs-4 col-md-4">
+        <label for="commodity" id="commodityLabel">調貨商品</label>
+        <select class="form-control" id="commodity">
+          <option></option>
+        </select>
+      </div>
+    
+      <div class="form-group col-xs-4 col-md-4">
+        <label for="sku" id="skuLabel">SKU</label>
+        <input type="text" class="form-control" id="sku">
+        <small id="skuhelp" class="form-text text-muted">SKU說明</small>
+      </div>
+    
+      <div class="form-group col-xs-4 col-md-4">
+        <label for="storageExNum" id="storageExNumLabel">出庫數量</label>
+        <input type="text" class="form-control" id="storageExNum">
+      </div>
+    
+      <div class="form-group col-xs-12 col-md-12">
+        <table class="table" id="transferTable">
+          <thead>
+            <tr>
+              <th width="50%" id="storageImLabel">入庫倉</th>
+              <th width="50%" id="storageImNumLabel">入貨數量</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    
+      <div class="form-group col-xs-3 col-md-3">
+        <button type="button" class="btn btn-primary" id="submit" trigger="false">送出</button>
+        <small id="submithelp" class="form-text text-muted">送出說明</small>
+      </div>
+    </div>
+  </body>
+  
+  <!-- Bootstrap core javascript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script>
+    $(function(){
+    
+      //Set current time as default time
+      document.getElementById("datetimePicker").value = new Date(new Date().getTime() + 28800000).toISOString().substring(0, 19); // Offset 28800000 = 60 * 60 * 8 * 1000 milisecond such that UTC+0 timezone convert to GMT+8 timezone
+      
+      //Append transfer table
+      var commodityRow = 4;
+      let $transfer = $("#transferTable tr:last");
+      for (var row = 0; row < commodityRow; row++){
+      
+        var storageID = "storageIm" + (row + 1);
+        
+        var htmlRow = "<tr>";
+        htmlRow += "<td><select class='selectPicker storagePicker' width='50%' storageID='' id='" + storageID + "'><option></option></select></td>";
+        htmlRow += "<td><input type'text' width='50%' id='storageImNum" + (row + 1) + "'></td></tr>";
+        $transfer.after(htmlRow);
+        $transfer = $("#transferTable tr:last");// move the pointer to last <tr> otherwise the order would be reversed
+      }
+      
+      //Preload event list
+      function getEventListSuccess(response){
+        for(var index in response){
+          var text = response[index];
+          if (text != ""){
+            var option = new Option(text, index);
+            document.getElementById('event').options.add(option);
+          }
+        }
+      }
+      
+      google.script.run.withSuccessHandler(getEventListSuccess).getTransferEventList();
+      
+      //Preload commodity list
+      function getCommodityListSuccess(response){
+        
+        for(var index in response){
+          var text = response[index];
+          if (text != ""){
+            var option = new Option(text, index);
+            document.getElementById('commodity').options.add(option);
+          }
+        }
+      }
+    
+      google.script.run.withSuccessHandler(getCommodityListSuccess).getCommodityList();
+      
+      //Preload storage list
+      function getStorageListSuccess(response){
+        
+        for(var index in response){
+          var text = response[index];
+          if (text != ""){
+            var option = new Option(text, index);
+            document.getElementById('storageEx').options.add(option);
+          }
+        }
+        
+        for(var row = 0; row < commodityRow; row++){
+          var storageID = "storageIm" + (row + 1);
+          for(var index in response){
+            var text = response[index];
+            if (text != ""){
+              var option = new Option(text, index);
+              document.getElementById(storageID).options.add(option);
+            }
+          }
+        }
+      }
+    
+      google.script.run.withSuccessHandler(getStorageListSuccess).getStorageList();
+      
+      //Load SKU automatically
+      let $commodity = $("#commodity");
+      $commodity.on("change", function(e){
+      
+        function getSkuSuccess(response){
+
+          $("#sku").val(response);
+        }
+        
+        google.script.run.withSuccessHandler(getSkuSuccess).getSKUByCommodity($(this).find("option:selected").text());
+      });
+      
+      //Load event id and save
+      let $event = $("#event");
+      $event.on("change", function(e){
+      
+        function getEventIDSuccess(response){
+          $event.attr("eventID", response);
+        }
+        
+        google.script.run.withSuccessHandler(getEventIDSuccess).getTransferEventIDByEvent($(this).find("option:selected").text());
+      });
+      
+      //Load storage id and save
+      let $storage = $("#storageEx");
+      $storage.on("change", function(e){
+      
+        function getStorageIDSuccess(response){
+          $storage.attr("storageID", response);
+        }
+        
+        google.script.run.withSuccessHandler(getStorageIDSuccess).getStorageIDByStorage($(this).find("option:selected").text());
+      });
+      
+      let $transferTable = $("#transferTable");
+      $transferTable.on("change", ".storagePicker", {}, function(e){
+      
+        var id = $(this).attr("id");
+        function getStorageIDSuccess(response){
+          $("#" + id).attr("storageID", response);
+        }
+        
+        google.script.run.withSuccessHandler(getStorageIDSuccess).getStorageIDByStorage($(this).find("option:selected").text());
+      });
+    
+      //Submit Post Request
+      let $submit = $("#submit");
+      $submit.on("click", function(e){
+      
+        var skuVal = $("#sku").val();
+        var noteVal = $("#note").val();
+        var numberVal = $("#number").val();
+        var timeVal = $("#datetimePicker").val();
+        var storageExNumVal = $("#storageExNum").val();
+        var eventIDVal = $event.attr("eventID");
+        var storageExIDVal = $("#storageEx").attr("storageID");
+        var commodityVal = $("#commodity").find("option:selected").text();
+        var storageImNumVal = $("#storageImNum1").val();
+        var storageImIDVal = $("#storageIm1").attr("storageID");
+        
+        //Check before submit
+        if (numberVal == ""){
+          window.alert("請輸入" + $("#numberLabel").html());
+          return;
+        }
+        if (storageExNumVal == ""){
+          window.alert("請輸入" + $("#storageExNumLabel").html());
+          return;
+        }
+        if (storageImNumVal == ""){
+          window.alert("請輸入" + $("#storageImNumLabel").html());
+          return;
+        }
+        if (eventIDVal == ""){
+          window.alert("請選擇" + $("#eventLabel").html());
+          return;
+        }
+        if (commodityVal == ""){
+          window.alert("請選擇" + $("#commodityLabel").html());
+          return;
+        }
+        if (storageExIDVal == ""){
+          window.alert("請選擇" + $("#storageExLabel").html());
+          return;
+        }
+        if (storageImIDVal == ""){
+          window.alert("請選擇" + $("#storageImLabel").html());
+          return;
+        }
+        
+        function getList(key, select, attribute = ""){
+          
+          var list = new Array();
+          for (var row = 0; row < commodityRow; row++){
+            var id = key + (row + 1);
+            var Val = attribute != ""? $(id).attr(attribute) : (select? $(id).find("option:selected").text() : $(id).val());
+            if (Val != ""){
+              list.push(Val);
+            }
+          }
+          
+          return list;
+        }
+        
+        var storageImNumVal = getList("#storageImNum", false);
+        var storageImIDVal = getList("#storageIm", true, "storageID");
+        
+        function getSum(list){
+          
+          sum = 0;
+          for (var index in list){
+            sum += parseInt(list[index]);
+          }
+          return sum;
+        }
+        
+        if (storageExNumVal != getSum(storageImNumVal)){
+          window.alert("出入庫商品總和數不符，請再進行確認");
+          return;
+        }
+        
+        //Check submit button state
+        if ($("#submit").attr("trigger") == "true"){
+          return;
+        }
+        
+        //Set submit button to triggered state to prevent double triggered
+        $("#submit").attr("trigger", "true");
+        
+        function postRequestSuccess(response){
+        
+          if (response == "true")
+          {
+            window.alert("寫入成功");
+            
+            //Clear number input
+            $("#number").val("");
+            //Set submit button to default state
+            $("#submit").attr("trigger", "false");
+          }
+        }
+        
+        google.script.run.withSuccessHandler(postRequestSuccess).sendTransferPostRequest(
+          timeVal,
+          numberVal, 
+          eventIDVal,
+          noteVal,
+          commodityVal, 
+          skuVal, 
+          storageExIDVal,
+          storageExNumVal, 
+          storageImIDVal,
+          storageImNumVal
+        );
+        
+      });
+    
+    });
+  </script>
+    
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>進貨單</title>
+    <base target="_top">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-group col-xs-6 col-md-6">
+        <label for="datetimePicker" id="datetimePickerLabel">出入庫日期</label>
+        <input type="datetime-local" class="form-control" id="datetimePicker">
+      </div>
+      <div class="form-group col-xs-6 col-md-6">
+        <label for="number" id="numberLabel">返貨單號碼</label>
+        <input type="text" class="form-control" id="number">
+        <small id="numberhelp" class="form-text text-muted">返貨單號碼說明</small>
+      </div>
+      
+      <br><br>
+      
+      <div class="form-group col-xs-4 col-md-4">
+        <label for="event" id="eventLabel">事件</label>
+        <select class="form-control" id="event" eventID="">
+          <option></option>
+        </select>
+      </div>
+      <div class="form-group col-xs-8 col-md-8">
+        <label for="note" id="noteLabel">備註</label>
+        <input type="text" class="form-control" id="note">
+      </div>
+      
+      <br><br>
+      
+      <div class="form-group col-xs-12 col-md-12">
+        <table class="table" id="returnTable">
+          <thead>
+            <tr>
+              <th width="25%" id="commodityLabel">返貨商品</th>
+              <th width="25%" id="skuLabel">SKU</th>
+              <th width="25%" id="storageLabel">入庫倉</th>
+              <th width="25%" id="storageNumLabel">入貨數量</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="form-group col-xs-3 col-md-3">
+        <button type="button" class="btn btn-primary" id="submit" trigger="false">送出</button>
+        <small id="submithelp" class="form-text text-muted">送出說明</small>
+      </div>
+    
+    </div>
+  </body>
+  
+  <!-- Bootstrap core javascript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script>
+    $(function(){
+    
+      //Set current time as default time
+      document.getElementById("datetimePicker").value = new Date(new Date().getTime() + 28800000).toISOString().substring(0, 19); // Offset 28800000 = 60 * 60 * 8 * 1000 milisecond such that UTC+0 timezone convert to GMT+8 timezone
+      
+      //Append return table
+      var commodityRow = 5;
+      let $export = $("#returnTable tr:last");
+      for (var row = 0; row < commodityRow; row++){
+      
+        var commodityID = "commodity" + (row + 1);
+        var storageID = "storage" + (row + 1);
+        
+        var htmlRow = "<tr>";
+        htmlRow += "<td><select class='selectPicker commodityPicker' width='25%' id='" + commodityID + "'><option></option></select></td>";
+        htmlRow += "<td><input type'text' width='25%' id='sku" + (row + 1) + "'></td>";
+        htmlRow += "<td><select class='selectPicker storagePicker' width='25%' storageID='' id='" + storageID + "'><option></option></select></td>";
+        htmlRow += "<td><input type'text' width='25%' id='storageNum" + (row + 1) + "'></td></tr>";
+        $export.after(htmlRow);
+        $export = $("#returnTable tr:last");// move the pointer to last <tr> otherwise the order would be reversed
+      }
+    
+      //Preload event list
+      function getEventListSuccess(response){
+        for(var index in response){
+          var text = response[index];
+          if (text != ""){
+            var option = new Option(text, index);
+            document.getElementById('event').options.add(option);
+          }
+        }
+      }
+      
+      google.script.run.withSuccessHandler(getEventListSuccess).getImportEventList();
+      
+      //Preload storage list
+      function getStorageListSuccess(response){
+        
+        for(var row = 0; row < commodityRow; row++){
+          var storageID = "storage" + (row + 1);
+          for(var index in response){
+            var text = response[index];
+            if (text != ""){
+              var option = new Option(text, index);
+              document.getElementById(storageID).options.add(option);
+            }
+          }
+        }
+      }
+    
+      google.script.run.withSuccessHandler(getStorageListSuccess).getStorageList();
+      
+      //Preload commodity list
+      function getCommodityListSuccess(response){
+        
+        for(var row = 0; row < commodityRow; row++){
+          var commodityID = "commodity" + (row + 1);
+          for(var index in response){
+            var text = response[index];
+            if (text != ""){
+              var option = new Option(text, index);
+              document.getElementById(commodityID).options.add(option);
+            }
+          }
+        }
+      }
+    
+      google.script.run.withSuccessHandler(getCommodityListSuccess).getCommodityList();
+      
+      //Load event id and save
+      let $event = $("#event");
+      $event.on("change", function(e){
+      
+        function getEventIDSuccess(response){
+          $event.attr("eventID", response);
+        }
+        
+        google.script.run.withSuccessHandler(getEventIDSuccess).getImportEventIDByEvent($(this).find("option:selected").text());
+      });
+      
+      //Load storage id and save
+      let $returnTable = $("#returnTable");
+      $returnTable.on("change", ".storagePicker", {}, function(e){
+      
+        var id = $(this).attr("id");
+        function getStorageIDSuccess(response){
+          $("#" + id).attr("storageID", response);
+        }
+        
+        google.script.run.withSuccessHandler(getStorageIDSuccess).getStorageIDByStorage($(this).find("option:selected").text());
+      });
+      
+      //Load SKU automatically
+      $returnTable.on("change", ".commodityPicker", {}, function(e){
+      
+        var id = $(this).attr("id");
+        function getSkuSuccess(response){
+          $("#" + id.replace("commodity", "sku")).val(response);
+        }
+        
+        google.script.run.withSuccessHandler(getSkuSuccess).getSKUByCommodity($(this).find("option:selected").text());
+      });
+      
+      //Submit Post Request
+      let $submit = $("#submit");
+      $submit.on("click", function(e){
+      
+        var skuVal = $("#sku1").val();
+        var noteVal = $("#note").val();
+        var numberVal = $("#number").val();
+        var timeVal = $("#datetimePicker").val();
+        var eventIDVal = $event.attr("eventID");
+        var storageIDVal = $("#storage1").attr("storageID");
+        var storageNumVal = $("#storageNum1").val();
+        var commodityVal = $("#commodity1").find("option:selected").text();
+        
+        //Check before submit
+        if (numberVal == ""){
+          window.alert("請輸入" + $("#numberLabel").html());
+          return;
+        }
+        if (storageNumVal == ""){
+          window.alert("請輸入" + $("#storageNumLabel").html());
+          return;
+        }
+        if (eventIDVal == ""){
+          window.alert("請選擇" + $("#eventLabel").html());
+          return;
+        }
+        if (storageIDVal == ""){
+          window.alert("請選擇" + $("#storageLabel").html());
+          return;
+        }
+        if (commodityVal == ""){
+          window.alert("請選擇" + $("#commodityLabel").html());
+          return;
+        }
+        
+        function getList(key, select, attribute = ""){
+          
+          var list = new Array();
+          for (var row = 0; row < commodityRow; row++){
+            var id = key + (row + 1);
+            var Val = attribute != ""? $(id).attr(attribute) : (select? $(id).find("option:selected").text() : $(id).val());
+            if (Val != ""){
+              list.push(Val);
+            }
+          }
+          
+          return list;
+        }
+        
+        var skuVal = getList("#sku", false);
+        var commodityVal = getList("#commodity", true);
+        var storageNumVal = getList("#storageNum", false);
+        var storageIDVal = getList("#storage", true, "storageID");
+      
+        //Check submit button state
+        if ($("#submit").attr("trigger") == "true"){
+          return;
+        }
+        
+        //Set submit button to triggered state to prevent double triggered
+        $("#submit").attr("trigger", "true");
+        
+        function postRequestSuccess(response){
+        
+          if (response == "true")
+          {
+            window.alert("寫入成功");
+            
+            //Clear number input
+            $("#number").val("");
+            //Set submit button to default state
+            $("#submit").attr("trigger", "false");
+          }
+        }
+        
+        google.script.run.withSuccessHandler(postRequestSuccess).sendReturnPostRequest(
+          timeVal, numberVal, eventIDVal, noteVal, commodityVal, skuVal, storageIDVal, storageNumVal
+        );
+      });
+      
+    });
+  </script>
+  
+</html>
