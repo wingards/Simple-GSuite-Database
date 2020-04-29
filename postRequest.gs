@@ -32,7 +32,7 @@ function sendImportPostRequest(time, number, commodity, sku, storage_num, event,
   };
   
   //APISheet.gs url
-  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbw5BEbe0z9k4o1CH4FGAoLmXzdTRdLsAMGc6VJbAPHwUGY3QPeE/exec";
+  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbz4f1lVAJLDR-kBVIcHN5jRVezCz1GI0YE73WFxTPkWIGZNnSs/exec";
   
   //Send Post Request
   var response = UrlFetchApp.fetch(url, options);
@@ -82,7 +82,7 @@ function sendExportPostRequest(time, storage, number, event, note, commodities, 
   };
   
   //APISheet.gs url
-  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbw5BEbe0z9k4o1CH4FGAoLmXzdTRdLsAMGc6VJbAPHwUGY3QPeE/exec";
+  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbz4f1lVAJLDR-kBVIcHN5jRVezCz1GI0YE73WFxTPkWIGZNnSs/exec";
   
   //Send Post Request
   var response = UrlFetchApp.fetch(url, options);
@@ -131,7 +131,7 @@ function sendReturnPostRequest(time, number, event, note, commodities, skus, sto
   };
   
   //APISheet.gs url
-  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbw5BEbe0z9k4o1CH4FGAoLmXzdTRdLsAMGc6VJbAPHwUGY3QPeE/exec";
+  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbz4f1lVAJLDR-kBVIcHN5jRVezCz1GI0YE73WFxTPkWIGZNnSs/exec";
   
   //Send Post Request
   var response = UrlFetchApp.fetch(url, options);
@@ -180,7 +180,7 @@ function sendRequisitePostRequest(time, number, event, note, commodities, skus, 
   };
   
   //APISheet.gs url
-  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbw5BEbe0z9k4o1CH4FGAoLmXzdTRdLsAMGc6VJbAPHwUGY3QPeE/exec";
+  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbz4f1lVAJLDR-kBVIcHN5jRVezCz1GI0YE73WFxTPkWIGZNnSs/exec";
   
   //Send Post Request
   var response = UrlFetchApp.fetch(url, options);
@@ -233,7 +233,7 @@ function sendTransferPostRequest(time, number, event, note, commodity, sku, stor
   };
   
   //APISheet.gs url
-  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbw5BEbe0z9k4o1CH4FGAoLmXzdTRdLsAMGc6VJbAPHwUGY3QPeE/exec";
+  var url = "https://script.google.com/a/connact.tw/macros/s/AKfycbz4f1lVAJLDR-kBVIcHN5jRVezCz1GI0YE73WFxTPkWIGZNnSs/exec";
   
   //Send Post Request
   var response = UrlFetchApp.fetch(url, options);
