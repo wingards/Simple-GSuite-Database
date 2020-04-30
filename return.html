@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>進貨單</title>
+    <title>返貨單</title>
     <base target="_top">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
@@ -219,6 +219,10 @@
       
         //Check submit button state
         if ($("#submit").attr("trigger") == "true"){
+          return;
+        }
+        
+        if(!window.confirm("確認送出")){
           return;
         }
         
