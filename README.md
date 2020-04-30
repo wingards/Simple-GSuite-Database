@@ -1,7 +1,7 @@
 # Simple-GSuite-Database
 A simple SAAS serverless database base on Google Apps Script(GAS)
 
-##Authentication
+## Authentication
 
 Some of GAS instruction have to be authenticated. For this project, the following authentication are needed:
 ```
