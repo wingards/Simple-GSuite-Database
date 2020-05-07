@@ -138,7 +138,7 @@ function sendImportOrder(time, number, commodity, sku, storage_num, event, stora
     }]
   };
   
-  var response = submitOrder("1oGAr86k9d3BfuSc_fe798jVIZ3Eq-dkwRoS6_kt2KJg", "入庫紀錄", data);
+  var response = submitOrder(PropertiesService.getScriptProperties().getProperty("LogisticSpreadSheetID"), "入庫紀錄", data);
   
   Logger.log(response);
   
@@ -172,7 +172,7 @@ function sendExportOrder(time, storage, number, event, note, commodities, skus, 
     "list":data
       };
   
-  var response = submitOrder("1oGAr86k9d3BfuSc_fe798jVIZ3Eq-dkwRoS6_kt2KJg", "出庫紀錄", data);
+  var response = submitOrder(PropertiesService.getScriptProperties().getProperty("LogisticSpreadSheetID"), "出庫紀錄", data);
   
   Logger.log(response);
   
@@ -205,7 +205,7 @@ function sendReturnOrder(time, number, event, note, commodities, skus, storages,
     "list":data
       };
   
-  var response = submitOrder("1oGAr86k9d3BfuSc_fe798jVIZ3Eq-dkwRoS6_kt2KJg", "入庫紀錄", data);
+  var response = submitOrder(PropertiesService.getScriptProperties().getProperty("LogisticSpreadSheetID"), "入庫紀錄", data);
   
   Logger.log(response);
   
@@ -238,7 +238,7 @@ function sendRequisiteOrder(time, number, event, note, commodities, skus, storag
     "list":data
       };
   
-  var response = submitOrder("1oGAr86k9d3BfuSc_fe798jVIZ3Eq-dkwRoS6_kt2KJg", "出庫紀錄", data);
+  var response = submitOrder(PropertiesService.getScriptProperties().getProperty("LogisticSpreadSheetID"), "出庫紀錄", data);
   
   Logger.log(response);
   
@@ -275,7 +275,7 @@ function sendTransferOrder(time, number, event, note, commodity, sku, storageEx,
     "list":data
       };
   
-  var response = submitOrder("1oGAr86k9d3BfuSc_fe798jVIZ3Eq-dkwRoS6_kt2KJg", "調庫紀錄", data);
+  var response = submitOrder(PropertiesService.getScriptProperties().getProperty("LogisticSpreadSheetID"), "調庫紀錄", data);
   
   Logger.log(response);
   

@@ -152,10 +152,6 @@ function updateStorageSheet_commodity(sheet, commodities, newSkus){
         
         var oldCol = findColumnIndex(sheet, sku, skuRow);
         
-        Logger.log("old:" + oldCol);
-        Logger.log("cur:" + curCol);
-        Logger.log("map:" + map.get(sku));
-        
         //copy column data of certain sku to new column
         var vals = sheet.getRange(3, oldCol, todayRow - 3 + 1).getValues();
         
@@ -167,9 +163,6 @@ function updateStorageSheet_commodity(sheet, commodities, newSkus){
         
         //set new column's index
         sheet.getRange(idxRow, curCol).setValue(index);
-        
-        Logger.log("index:" + index);
-        Logger.log("sku:" + sku);
         
         //paste
         sheet.getRange(3, curCol, todayRow - 3 + 1).setValues(vals);

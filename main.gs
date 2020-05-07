@@ -1,5 +1,12 @@
 function onOpen(){
   
+  //試算表ID - 營銷資料表
+  PropertiesService.getScriptProperties().setProperty("CommoditySpreadSheetID", "1Apa9Lx70VN7nLwm04RV9JttnkgF0hJ4sARj3bG9hPxg");
+  //試算表ID - 倉儲表
+  PropertiesService.getScriptProperties().setProperty("StorageSpreadSheetID", "1HEP5O-WU0nvzkFQSXZKsS84ZcRA_pUhG-VyWdeLxxck");
+  //試算表ID - 出入庫紀錄
+  PropertiesService.getScriptProperties().setProperty("LogisticSpreadSheetID", "1oGAr86k9d3BfuSc_fe798jVIZ3Eq-dkwRoS6_kt2KJg");
+  
   //產品總表-標題列
   PropertiesService.getScriptProperties().setProperty("fixRow_commoditySheet", 1);
   
@@ -38,8 +45,14 @@ function getScriptUrl() {
  return ScriptApp.getService().getUrl();
 }
 
+//營銷資料表
 function getCommoditySpreadSheet(){
-  return SpreadsheetApp.openById("1Apa9Lx70VN7nLwm04RV9JttnkgF0hJ4sARj3bG9hPxg");
+  return SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("CommoditySpreadSheetID"));
+}
+
+//倉儲表
+function getStorageSpreadSheet(){
+  return SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("StorageSpreadSheetID"));
 }
 
 function getCommoditySheet(){
@@ -72,10 +85,6 @@ function getStorageEventSheet(){
   return sheet;
 }
 
-function getStorageSpreadSheet(){
-  return SpreadsheetApp.openById("1HEP5O-WU0nvzkFQSXZKsS84ZcRA_pUhG-VyWdeLxxck");
-}
-
 function getStorageSheet(storageID){
 
   var spreadSheet = getStorageSpreadSheet();
@@ -84,6 +93,7 @@ function getStorageSheet(storageID){
   return sheet;
 }
 
+// find the index of column by given key
 function findColumnIndex(sheet, key, row = 1){
   
   var maxColumn = sheet.getMaxColumns();
