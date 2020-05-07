@@ -1,3 +1,19 @@
+function onOpen(){
+  
+  //產品總表-標題列
+  PropertiesService.getScriptProperties().setProperty("fixRow_commoditySheet", 1);
+  
+  //倉儲表-固定欄數
+  PropertiesService.getScriptProperties().setProperty("fixCol_storageSheet", 1);
+  //倉儲表-商品資訊列數
+  PropertiesService.getScriptProperties().setProperty("fixRow_storageSheet", 10);
+  
+  //出入庫紀錄-標題列
+  PropertiesService.getScriptProperties().setProperty("titleRow_LogisticSheet", 1);
+  //出入庫紀錄-起始欄
+  PropertiesService.getScriptProperties().setProperty("startCol_LogisticSheet", 1);
+}
+
 function doGet(e) {
   if (!e.parameter.page) {
     // When no specific page requested, return "home page"
@@ -22,33 +38,72 @@ function getScriptUrl() {
  return ScriptApp.getService().getUrl();
 }
 
+function getCommoditySpreadSheet(){
+  return SpreadsheetApp.openById("1Apa9Lx70VN7nLwm04RV9JttnkgF0hJ4sARj3bG9hPxg");
+}
+
+function getCommoditySheet(){
+  
+  var sheetTag = "產品總表";
+  
+  var spreadSheet = getCommoditySpreadSheet();
+  var sheet = spreadSheet.getSheetByName(sheetTag);
+  
+  return sheet;
+}
+
 function getCommonSheet(){
-  var sheetID = "1Apa9Lx70VN7nLwm04RV9JttnkgF0hJ4sARj3bG9hPxg";
+  
   var sheetTag = "常用產品";
   
-  var spreadSheet = SpreadsheetApp.openById(sheetID);
+  var spreadSheet = getCommoditySpreadSheet();
   var sheet = spreadSheet.getSheetByName(sheetTag);
   
   return sheet;
 }
 
-function getStorageSheet(){
-  var sheetID = "1Apa9Lx70VN7nLwm04RV9JttnkgF0hJ4sARj3bG9hPxg";
+function getStorageEventSheet(){
+  
   var sheetTag = "倉庫事件";
   
-  var spreadSheet = SpreadsheetApp.openById(sheetID);
+  var spreadSheet = getCommoditySpreadSheet();
   var sheet = spreadSheet.getSheetByName(sheetTag);
   
   return sheet;
 }
 
-function findColumnIndex(sheet, commodity){
+function getStorageSpreadSheet(){
+  return SpreadsheetApp.openById("1HEP5O-WU0nvzkFQSXZKsS84ZcRA_pUhG-VyWdeLxxck");
+}
+
+function getStorageSheet(storageID){
+
+  var spreadSheet = getStorageSpreadSheet();
+  var sheet = spreadSheet.getSheetByName(storageID);
+  
+  return sheet;
+}
+
+function findColumnIndex(sheet, key, row = 1){
   
   var maxColumn = sheet.getMaxColumns();
   
   for (var i = 1; i <= maxColumn; i++){
-    if (sheet.getRange(1, i).getValue() == commodity){
+    if (sheet.getRange(row, i).getValue() == key){
       return i;
+    }
+  }
+  
+  return -1;
+}
+
+function findRowByKey(sheet, key, startRow, col, size){
+  
+  var vals = sheet.getRange(parseInt(startRow), parseInt(col), parseInt(size)).getValues();
+  
+  for (var row in vals){
+    if (vals[row][0] == key){
+      return parseInt(row) + startRow;
     }
   }
   
@@ -63,13 +118,10 @@ function findValueByKey(sheet, keyTitle, valTitle, key, startRow, size){
   //Find column index of value
   var valCol = findColumnIndex(sheet, valTitle);
   
-  var vals = sheet.getRange(startRow, keyCol, size).getValues();
+  var valRow = findRowByKey(sheet, key, startRow, keyCol, size);
   
-  for ( var row in vals){
-    if(vals[row][0] == key){
-      var valRow = parseInt(row) + startRow;
-      return sheet.getRange(valRow, valCol).getValue();
-    }
+  if (valRow != -1){
+    return sheet.getRange(valRow, valCol).getValue();
   }
   
   return "";
@@ -77,7 +129,7 @@ function findValueByKey(sheet, keyTitle, valTitle, key, startRow, size){
 
 function getImportEventIDByEvent(event){
   
-  var sheet = getStorageSheet();
+  var sheet = getStorageEventSheet();
   
   var fixRow = 1;
   
@@ -86,7 +138,7 @@ function getImportEventIDByEvent(event){
 
 function getExportEventIDByEvent(event){
   
-  var sheet = getStorageSheet();
+  var sheet = getStorageEventSheet();
   
   var fixRow = 1;
   
@@ -95,7 +147,7 @@ function getExportEventIDByEvent(event){
 
 function getTransferEventIDByEvent(event){
   
-  var sheet = getStorageSheet();
+  var sheet = getStorageEventSheet();
   
   var fixRow = 1;
   
@@ -104,7 +156,7 @@ function getTransferEventIDByEvent(event){
 
 function getStorageIDByStorage(storage){
   
-  var sheet = getStorageSheet();
+  var sheet = getStorageEventSheet();
   
   var fixRow = 1;
   

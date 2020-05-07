@@ -229,7 +229,7 @@
         //Set submit button to triggered state to prevent double triggered
         $("#submit").attr("trigger", "true");
         
-        function postRequestSuccess(response){
+        function sendOrderSucess(response){
         
           if (response == "true")
           {
@@ -242,7 +242,7 @@
           }
         }
         
-        google.script.run.withSuccessHandler(postRequestSuccess).sendReturnPostRequest(
+        google.script.run.withSuccessHandler(sendOrderSucess).sendReturnOrder(
           timeVal, numberVal, eventIDVal, noteVal, commodityVal, skuVal, storageIDVal, storageNumVal
         );
       });

@@ -15,7 +15,7 @@ function getColContents(sheet, col, startRow, size){
 
 function getImportEventList(){
   
-  var sheet = getStorageSheet();
+  var sheet = getStorageEventSheet();
   
   //Find column index of "入庫簡稱"
   var col = findColumnIndex(sheet, "入庫簡稱");
@@ -31,7 +31,7 @@ function getImportEventList(){
 
 function getExportEventList(){
   
-  var sheet = getStorageSheet();
+  var sheet = getStorageEventSheet();
   
   //Find column index of "出庫簡稱"
   var col = findColumnIndex(sheet, "出庫簡稱");
@@ -47,7 +47,7 @@ function getExportEventList(){
 
 function getTransferEventList(){
   
-  var sheet = getStorageSheet();
+  var sheet = getStorageEventSheet();
   
   //Find column index of "換庫簡稱"
   var col = findColumnIndex(sheet, "換庫簡稱");
@@ -63,10 +63,25 @@ function getTransferEventList(){
 
 function getStorageList(){
   
-  var sheet = getStorageSheet();
+  var sheet = getStorageEventSheet();
   
   //Find column index of "倉庫簡稱"
   var col = findColumnIndex(sheet, "倉庫簡稱");
+  
+  var fixRow = 1;
+  
+  var list = getColContents(sheet, col, fixRow + 1, sheet.getLastRow() - fixRow);
+  
+  Logger.log(list);
+              
+  return list;
+}
+
+function getStorageIDList(){
+  var sheet = getStorageEventSheet();
+  
+  //Find column index of "倉庫代號"
+  var col = findColumnIndex(sheet, "倉庫代號");
   
   var fixRow = 1;
   
