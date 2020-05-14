@@ -74,10 +74,10 @@
         var storageID = "storage" + (row + 1);
         
         var htmlRow = "<tr>";
-        htmlRow += "<td><select class='selectPicker commodityPicker' width='25%' id='" + commodityID + "'><option></option></select></td>";
-        htmlRow += "<td><input type'text' width='25%' id='sku" + (row + 1) + "'></td>";
-        htmlRow += "<td><select class='selectPicker storagePicker' width='25%' storageID='' id='" + storageID + "'><option></option></select></td>";
-        htmlRow += "<td><input type'text' width='25%' id='storageNum" + (row + 1) + "'></td></tr>";
+        htmlRow += "<td><select class='selectPicker commodityPicker btn-block' width='25%' id='" + commodityID + "'><option></option></select></td>";
+        htmlRow += "<td><input type'text' class='btn-block' width='25%' id='sku" + (row + 1) + "'></td>";
+        htmlRow += "<td><select class='selectPicker storagePicker btn-block' width='25%' storageID='' id='" + storageID + "'><option></option></select></td>";
+        htmlRow += "<td><input type'text' class='btn-block' width='25%' id='storageNum" + (row + 1) + "'></td></tr>";
         $requisition.after(htmlRow);
         $requisition = $("#requisitionTable tr:last");// move the pointer to last <tr> otherwise the order would be reversed
       }

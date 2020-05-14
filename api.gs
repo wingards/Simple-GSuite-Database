@@ -108,13 +108,15 @@ function getStorageSheet_skuMap(sheet, skuRow, idxRow){
 
 function test1(){
   
-  onOpen();
+  var root = DriveApp.getRootFolder();
+  Logger.log(root.getName());
   
-  createStorageSheet("W3");
-  
-  //var [skus, commodities] = getCommodityInfo();
-  
-  //updateStorageSheet_commodity(getStorageSheet("W2"), commodities, skus);
+  var dirs = root.getFolders();
+  while (dirs.hasNext()) {
+    var dir = dirs.next();
+    Logger.log(dir.getName());
+  }
+
 }
 
 function updateStorageSheet_commodity(sheet, commodities, newSkus){

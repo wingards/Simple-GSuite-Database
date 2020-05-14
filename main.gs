@@ -2,10 +2,16 @@ function onOpen(){
   
   //試算表ID - 營銷資料表
   PropertiesService.getScriptProperties().setProperty("CommoditySpreadSheetID", "1Apa9Lx70VN7nLwm04RV9JttnkgF0hJ4sARj3bG9hPxg");
+  
+  var spreadSheet = getCommoditySpreadSheet();
+  var sheet = spreadSheet.getSheetByName("專案索引");
+  
+  var entries = sheet.getRange(0, 0, sheet.getLastRow());
+  
   //試算表ID - 倉儲表
-  PropertiesService.getScriptProperties().setProperty("StorageSpreadSheetID", "1HEP5O-WU0nvzkFQSXZKsS84ZcRA_pUhG-VyWdeLxxck");
+  PropertiesService.getScriptProperties().setProperty("StorageSpreadSheetID", entries[0][1]);
   //試算表ID - 出入庫紀錄
-  PropertiesService.getScriptProperties().setProperty("LogisticSpreadSheetID", "1oGAr86k9d3BfuSc_fe798jVIZ3Eq-dkwRoS6_kt2KJg");
+  PropertiesService.getScriptProperties().setProperty("LogisticSpreadSheetID", entries[1][1]);
   
   //產品總表-標題列
   PropertiesService.getScriptProperties().setProperty("fixRow_commoditySheet", 1);
@@ -53,6 +59,11 @@ function getCommoditySpreadSheet(){
 //倉儲表
 function getStorageSpreadSheet(){
   return SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("StorageSpreadSheetID"));
+}
+
+//出入庫紀錄
+function getLogisticSpreadSheet(){
+  return SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("LogisticSpreadSheetID"));
 }
 
 function getCommoditySheet(){

@@ -94,8 +94,8 @@
         var storageID = "storageIm" + (row + 1);
         
         var htmlRow = "<tr>";
-        htmlRow += "<td><select class='selectPicker storagePicker' width='50%' storageID='' id='" + storageID + "'><option></option></select></td>";
-        htmlRow += "<td><input type'text' width='50%' id='storageImNum" + (row + 1) + "'></td></tr>";
+        htmlRow += "<td><select class='selectPicker storagePicker btn-block' width='50%' storageID='' id='" + storageID + "'><option></option></select></td>";
+        htmlRow += "<td><input type'text' class='btn-block' width='50%' id='storageImNum" + (row + 1) + "'></td></tr>";
         $transfer.after(htmlRow);
         $transfer = $("#transferTable tr:last");// move the pointer to last <tr> otherwise the order would be reversed
       }

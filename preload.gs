@@ -107,3 +107,27 @@ function getCommodityList(){
               
   return list;
 }
+
+function getCommoditySKUList(){
+  
+  var sheet = getCommonSheet();
+  
+  //Find column index of "簡稱"
+  var col = findColumnIndex(sheet, "簡稱");
+  
+  var fixRow = 1;
+  
+  var list = sheet.getRange(fixRow + 1, col, sheet.getLastRow() - fixRow, 2).getValues();//[WORKAROUND] Assume "SKU" next to "簡稱"
+  
+  return list;
+}
+
+function getStorageSpreadSheetName(){
+  var spreadSheet = getStorageSpreadSheet();
+  return spreadSheet.getName();
+}
+
+function getLogisticSpreadSheetName(){
+  var spreadSheet = getLogisticSpreadSheet();
+  return spreadSheet.getName();
+}

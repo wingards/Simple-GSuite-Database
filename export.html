@@ -71,19 +71,19 @@
       document.getElementById("datetimePicker").value = new Date(new Date().getTime() + 28800000).toISOString().substring(0, 19); // Offset 28800000 = 60 * 60 * 8 * 1000 milisecond such that UTC+0 timezone convert to GMT+8 timezone
       
       //Append export table
-      var commodityRow = 20;
-      let $export = $("#exportTable tr:last");
+      var commodityRow = 0;
+      /*let $export = $("#exportTable tr:last");
       for (var row = 0; row < commodityRow; row++){
       
         var commodityID = "commodity" + (row + 1);
         
         var htmlRow = "<tr>";
-        htmlRow += "<td><select class='selectPicker' width='33%' id='" + commodityID + "'><option></option></select></td>";
-        htmlRow += "<td><input type'text' width='33%' id='sku" + (row + 1) + "'></td>";
-        htmlRow += "<td><input type'text' width='33%' id='storageNum" + (row + 1) + "'></td></tr>";
+        htmlRow += "<td><select class='selectPicker btn-block' width='33%' id='" + commodityID + "'><option></option></select></td>";
+        htmlRow += "<td><input type'text' class='btn-block' width='33%' id='sku" + (row + 1) + "'></td>";
+        htmlRow += "<td><input type'text' class='btn-block' width='33%' id='storageNum" + (row + 1) + "'></td></tr>";
         $export.after(htmlRow);
         $export = $("#exportTable tr:last");// move the pointer to last <tr> otherwise the order would be reversed
-      }
+      }*/
     
       //Preload event list
       function getEventListSuccess(response){
@@ -113,21 +113,27 @@
       google.script.run.withSuccessHandler(getStorageListSuccess).getStorageList();
       
       //Preload commodity list
-      function getCommodityListSuccess(response){
+      function getCommoditySKUListSuccess(response){
+      
+        commodityRow = response.length;
         
-        for(var row = 0; row < commodityRow; row++){
-          var commodityID = "commodity" + (row + 1);
-          for(var index in response){
-            var text = response[index];
-            if (text != ""){
-              var option = new Option(text, index);
-              document.getElementById(commodityID).options.add(option);
-            }
-          }
+        let $export = $("#exportTable tr:last");
+        
+        for(var index in response){
+          var skuID = "sku" + parseInt(parseInt(index) + 1);
+          var commodityID = "commodity" + parseInt(parseInt(index) + 1);
+          var storageNumID = "storageNum" + parseInt(parseInt(index) + 1);
+          
+          var htmlRow = "<tr>";
+          htmlRow += "<td><input class='selectPicker btn-block' width='33%' id='" + commodityID + "' value='" + response[index][0] + "' readonly><option></option></select></td>";
+          htmlRow += "<td><input type'text' class='btn-block' width='33%' id='" + skuID + "' value='" + response[index][1] + "' readonly></td>";
+          htmlRow += "<td><input type'text' class='btn-block' width='33%' id='" + storageNumID + "' value=''></td></tr>";
+          $export.after(htmlRow);
+          $export = $("#exportTable tr:last");// move the pointer to last <tr> otherwise the order would be reversed
         }
       }
     
-      google.script.run.withSuccessHandler(getCommodityListSuccess).getCommodityList();
+      google.script.run.withSuccessHandler(getCommoditySKUListSuccess).getCommoditySKUList();
       
       //Load event id and save
       let $event = $("#event");
@@ -151,18 +157,6 @@
         google.script.run.withSuccessHandler(getStorageIDSuccess).getStorageIDByStorage($(this).find("option:selected").text());
       });
       
-      //Load SKU automatically
-      let $exportTable = $("#exportTable");
-      $exportTable.on("change", ".selectPicker", {}, function(e){
-      
-        var id = $(this).attr("id");
-        function getSkuSuccess(response){
-          $("#" + id.replace("commodity", "sku")).val(response);
-        }
-        
-        google.script.run.withSuccessHandler(getSkuSuccess).getSKUByCommodity($(this).find("option:selected").text());
-      });
-      
       //Submit Post Request
       let $submit = $("#submit");
       $submit.on("click", function(e){
@@ -174,7 +168,6 @@
         var eventIDVal = $event.attr("eventID");
         var storageIDVal = $storage.attr("storageID");
         var storageNumVal = $("#storageNum1").val();
-        var commodityVal = $("#commodity1").find("option:selected").text();
         
         //Check before submit
         if (numberVal == ""){
@@ -193,28 +186,31 @@
           window.alert("請選擇" + $("#storageLabel").html());
           return;
         }
-        if (commodityVal == ""){
-          window.alert("請選擇" + $("#commodityLabel").html());
-          return;
-        }
         
-        function getList(key, select){
+        function getList(){
           
-          var list = new Array();
+          var commmodityList = new Array(), skuList = new Array(), storageNumList = new Array();
+          
           for (var row = 0; row < commodityRow; row++){
-            var id = key + (row + 1);
-            var Val = (select)? $(id).find("option:selected").text() : $(id).val();
-            if (Val != ""){
-              list.push(Val);
+            
+            var skuID = "#sku" + parseInt(row + 1);
+            var commodityID = "#commodity" + parseInt(row + 1);
+            var storageNumID = "#storageNum" + parseInt(row + 1);
+            
+            var storageNum = $(storageNumID).val();
+            
+            if (storageNum != "" && parseInt(storageNum) > 0){
+              
+              skuList.push($(skuID).val());
+              commmodityList.push($(commodityID).val());
+              storageNumList.push(storageNum);
             }
           }
           
-          return list;
+          return [skuList, commmodityList, storageNumList];
         }
         
-        var skuVal = getList("#sku", false);
-        var commodityVal = getList("#commodity", true);
-        var storageNumVal = getList("#storageNum", false);
+        var [skuVal, commodityVal, storageNumVal] = getList();
       
         //Check submit button state
         if ($("#submit").attr("trigger") == "true"){
