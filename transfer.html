@@ -213,6 +213,10 @@
         var storageImIDVal = $("#storageIm1").attr("storageID");
         
         //Check before submit
+        if (timeVal == ""){
+          window.alert("請填寫正確" + $("#datetimePickerLabel").html());
+          return;
+        }
         if (numberVal == ""){
           window.alert("請輸入" + $("#numberLabel").html());
           return;

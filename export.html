@@ -170,6 +170,10 @@
         var storageNumVal = $("#storageNum1").val();
         
         //Check before submit
+        if (timeVal == ""){
+          window.alert("請填寫正確" + $("#datetimePickerLabel").html());
+          return;
+        }
         if (numberVal == ""){
           window.alert("請輸入" + $("#numberLabel").html());
           return;

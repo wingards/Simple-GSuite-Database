@@ -27,7 +27,7 @@ function onOpen(){
   PropertiesService.getScriptProperties().setProperty("startCol_LogisticSheet", 1);
 }
 
-function doGet(e) {
+function doGet(e) { 
   if (!e.parameter.page) {
     // When no specific page requested, return "home page"
     return HtmlService.createHtmlOutputFromFile('Mainpage').setTitle("首頁").setSandboxMode(HtmlService.SandboxMode.IFRAME);
