@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>出貨單</title>
+    <title>大量進貨單</title>
     <base target="_top">
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
@@ -9,19 +9,19 @@
   <body>
     <div class="container">
       <div class="form-group col-xs-4 col-md-4">
-        <label for="storage" id="storageLabel">出庫倉</label>
+        <label for="storage" id="storageLabel">入庫倉</label>
         <select class="form-control" id="storage" storageID="">
           <option></option>
         </select>
       </div>
       <div class="form-group col-xs-4 col-md-4">
-        <label for="datetimePicker" id="datetimePickerLabel">出庫日期</label>
+        <label for="datetimePicker" id="datetimePickerLabel">入庫日期</label>
         <input type="datetime-local" class="form-control" id="datetimePicker">
       </div>
       <div class="form-group col-xs-4 col-md-4">
-        <label for="number" id="numberLabel">出貨單號碼</label>
+        <label for="number" id="numberLabel">大量進貨單號碼</label>
         <input type="text" class="form-control" id="number">
-        <small id="numberhelp" class="form-text text-muted">出貨單號碼說明</small>
+        <small id="numberhelp" class="form-text text-muted">大量進貨單號碼說明</small>
       </div>
       
       <br><br>
@@ -40,12 +40,12 @@
       <br><br>
       
       <div class="form-group col-xs-12 col-md-12">
-        <table class="table" id="exportTable">
+        <table class="table" id="importTable">
           <thead>
             <tr>
-              <th width="33%" id="commodityLabel">出貨商品</th>
+              <th width="33%" id="commodityLabel">進貨商品</th>
               <th width="33%" id="skuLabel">SKU</th>
-              <th width="33%" id="storageNumLabel">出貨數量</th>
+              <th width="33%" id="storageNumLabel">進貨數量</th>
             </tr>
           </thead>
           <tbody>
@@ -70,7 +70,7 @@
       //Set current time as default time
       document.getElementById("datetimePicker").value = new Date(new Date().getTime() + 28800000).toISOString().substring(0, 19); // Offset 28800000 = 60 * 60 * 8 * 1000 milisecond such that UTC+0 timezone convert to GMT+8 timezone
       
-      //Append export table
+      //Append import table
       var commodityRow = 0;
     
       //Preload event list
@@ -84,7 +84,7 @@
         }
       }
       
-      google.script.run.withSuccessHandler(getEventListSuccess).getExportEventList();
+      google.script.run.withSuccessHandler(getEventListSuccess).getImportEventList();
       
       //Preload storage list
       function getStorageListSuccess(response){
@@ -105,7 +105,7 @@
       
         commodityRow = response.length;
         
-        let $export = $("#exportTable tr:last");
+        let $export = $("#importTable tr:last");
         
         for(var index in response){
           var skuID = "sku" + parseInt(parseInt(index) + 1);
@@ -117,7 +117,7 @@
           htmlRow += "<td><input type'text' class='btn-block' width='33%' id='" + skuID + "' value='" + response[index][1] + "' disabled></td>";
           htmlRow += "<td><input type'text' class='btn-block' width='33%' id='" + storageNumID + "' value=''></td></tr>";
           $export.after(htmlRow);
-          $export = $("#exportTable tr:last");// move the pointer to last <tr> otherwise the order would be reversed
+          $export = $("#importTable tr:last");// move the pointer to last <tr> otherwise the order would be reversed
         }
       }
     
@@ -131,7 +131,7 @@
           $event.attr("eventID", response);
         }
         
-        google.script.run.withSuccessHandler(getEventIDSuccess).getExportEventIDByEvent($(this).find("option:selected").text());
+        google.script.run.withSuccessHandler(getEventIDSuccess).getImportEventIDByEvent($(this).find("option:selected").text());
       });
       
       //Load storage id and save
@@ -229,7 +229,7 @@
           }
         }
         
-        google.script.run.withSuccessHandler(sendOrderSucess).sendExportOrder(
+        google.script.run.withSuccessHandler(sendOrderSucess).sendImportMassOrder(
           timeVal, storageIDVal, numberVal, eventIDVal, noteVal, commodityVal, skuVal, storageNumVal
         );
       });

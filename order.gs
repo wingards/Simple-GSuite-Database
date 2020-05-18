@@ -285,3 +285,37 @@ function sendTransferOrder(time, number, event, note, commodity, sku, storageEx,
   
   return "false";
 }
+
+function sendImportMassOrder(time, storage, number, event, note, commodities, skus, storageNums){
+  
+  var time = new Date(time).toLocaleString();
+  var user = Session.getActiveUser().getEmail();
+  
+  var data = new Array();
+  
+  for (var index in commodities){
+    data.push({"產品":commodities[index], "SKU":skus[index], "數量":storageNums[index]});
+  }
+  
+  var data = {
+    "出入庫日期":time,
+    "入庫倉庫":storage,
+    "表單號碼":number,
+    "表單":"大量進貨單",
+    "填寫人":user,
+    "時間":new Date().toLocaleString(),
+    "事件":event,
+    "備註":note,
+    "list":data
+      };
+  
+  var response = submitOrder(PropertiesService.getScriptProperties().getProperty("LogisticSpreadSheetID"), "入庫紀錄", data);
+  
+  Logger.log(response);
+  
+  if (response == true){
+    return "true";
+  }    
+  
+  return "false";
+}

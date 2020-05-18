@@ -41,6 +41,7 @@ function doGet(e) {
     "return":"返貨單",
     "requisition":"領貨單",
     "transfer":"調貨單",
+    "importMass":"大量進貨",
   }
   
   // else, use page parameter to pick an html file from the script
